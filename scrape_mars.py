@@ -10,16 +10,18 @@ def init_browser():
 
 # Scrape Recent NASA Mars News
 def scrape():
-    browser = init_browser
-    news_url = "https://mars.nasa.gov/news/?page=0&per_page=40&order=publish_date+desc%2Ccreated_at+desc&search=&category=19%2C165%2C184%2C204&blank_scope=Latest"
-    browser.visit(news_url)
+    browser = init_browser()
+    mars_data = {}
+    url = "https://mars.nasa.gov/news/"
+    browser.visit(url)
     time.sleep(2)
     html = browser.html
-    soup = bsoup(html, "lxml")
+    soup = bsoup(html, "html.parser")
     news_title = soup.find("div", class_="content_title").text
     news_p = soup.find("div", class_="article_teaser_body").text
-    mars_news['news_title'] = news_title
-    mars_news['news_paragraph'] = news_p
+    mars_data['news_title'] = news_title
+    mars_data['news_paragraph'] = news_p
+    mars_dash_data = mars_data
 
 # JPL Mars Space Images - Featured Image
 # image_url = "https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars"
@@ -40,7 +42,7 @@ def scrape():
     weather_html = browser.html
     soup = bsoup(weather_html, "lxml")
     mars_weather = soup.find("div", class_="js-tweet-text-container").text
-
+    mars_dash_data["mars_weather"] = mars_weather
 # Mars Facts
     facts_url = "https://space-facts.com/mars/"
     browser.visit(facts_url)
@@ -49,15 +51,16 @@ def scrape():
     mars_df = tables[0]
     mars_df.columns = ['Observation', 'Measurement']
     mars_facts = mars_df.set_index('Observation', inplace=True)
+    mars_dash_data["mars_facts"] = mars_facts
 
-    mars_data = {
-    "mars_news": mars_news,
-    "mars_weather": mars_weather,
-    "mars_facts": mars_facts
-    }
+    # mars_data = {
+    # "mars_news": mars_news,
+    # "mars_weather": mars_weather,
+    # "mars_facts": mars_facts
+    # }
     browser.quit()
 
-    return mars_data
+    return mars_dash_data
 
 
 # Mars Hemispheres
